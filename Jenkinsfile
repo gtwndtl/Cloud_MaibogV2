@@ -6,10 +6,6 @@ pipeline {
         COMPOSE_FILE = 'docker-compose.yml'
     }
 
-    options {
-        timestamps()
-    }
-
     stages {
         stage('Checkout') {
             steps {
@@ -17,23 +13,22 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build Services') {
             steps {
-                sh "docker-compose -f ${COMPOSE_FILE} build"
+                sh "docker-compose -f ${COMPOSE_FILE} build user_service election_service vote_service candidate_service"
             }
         }
 
-        stage('Deploy') {
+        stage('Restart Services') {
             steps {
-                sh "docker-compose -f ${COMPOSE_FILE} down"
-                sh "docker-compose -f ${COMPOSE_FILE} up -d"
+                sh "docker-compose -f ${COMPOSE_FILE} up -d user_service election_service vote_service candidate_service"
             }
         }
     }
 
     post {
         always {
-            echo 'Pipeline finished!'
+            echo 'Pipeline finished.'
         }
     }
 }
