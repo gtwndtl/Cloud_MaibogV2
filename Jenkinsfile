@@ -13,30 +13,36 @@ pipeline {
             }
         }
 
+        stage('Cleanup Conflicting Containers') {
+            steps {
+                script {
+                    echo "Cleaning up containers using ports 5001,5002,5003,5004 and 54321"
+
+                    def ports = ['5001', '5002', '5003', '5004', '54321']
+
+                    ports.each { port ->
+                        def containerId = sh(script: "docker ps -aq --filter publish=${port}", returnStdout: true).trim()
+                        if (containerId) {
+                            echo "Stopping and removing container using port ${port}: ${containerId}"
+                            sh "docker rm -f ${containerId}"
+                        } else {
+                            echo "No container found using port ${port}"
+                        }
+                    }
+                }
+            }
+        }
+
         stage('Build Services') {
             steps {
                 sh "docker-compose -f ${COMPOSE_FILE} build user_service election_service vote_service candidate_service"
             }
         }
 
-        stage('Force Remove Conflicting Containers') {
-            steps {
-                sh '''
-                    echo "Cleaning containers using ports 5001–5004 (user/election/vote/candidate services)"
-                    for port in 5001 5002 5003 5004; do
-                      CONTAINER_ID=$(docker ps -aq --filter "publish=$port")
-                      if [ ! -z "$CONTAINER_ID" ]; then
-                        echo "Stopping and removing container on port $port -> $CONTAINER_ID"
-                        docker rm -f "$CONTAINER_ID"
-                      fi
-                    done
-                '''
-            }
-        }
-
         stage('Restart Services') {
             steps {
-                sh "docker-compose -f ${COMPOSE_FILE} up -d user_service election_service vote_service candidate_service"
+                // --force-recreate ช่วยให้ recreate container ใหม่ทุกครั้ง
+                sh "docker-compose -f ${COMPOSE_FILE} up -d --force-recreate user_service election_service vote_service candidate_service"
             }
         }
     }
