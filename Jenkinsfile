@@ -4,20 +4,19 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/gtwndtl/Cloud_MaibogV2.git'
+                // ระบุ branch ให้ชัดเจน
+                git branch: 'main', url: 'https://github.com/gtwndtl/Cloud_MaibogV2.git'
             }
         }
 
         stage('Build Docker Images') {
             steps {
-                // สมมุติว่ามี Dockerfile อยู่ใน repo
                 sh 'docker-compose build'
             }
         }
 
         stage('Deploy') {
             steps {
-                // สั่งรัน docker-compose แบบ detached
                 sh 'docker-compose up -d'
             }
         }
