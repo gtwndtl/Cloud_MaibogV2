@@ -12,4 +12,4 @@ ENV FLASK_APP=app.py
 
 EXPOSE 5003
 
-CMD flask db upgrade && flask run --host=0.0.0.0 --port=5003
+CMD ["sh", "-c", "flask db upgrade && flask run --host=0.0.0.0 --port=5003"]
