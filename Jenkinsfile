@@ -19,7 +19,7 @@ pipeline {
             }
         }
 
-        stage('Stop & Remove Old Containers') {
+        stage('Stop & Remove Old Services') {
             steps {
                 sh """
                     docker-compose -f ${COMPOSE_FILE} stop user_service election_service vote_service candidate_service || true
