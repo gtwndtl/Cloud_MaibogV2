@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from models import db, Candidate
+from models.models import db, Candidate
 from flask_migrate import Migrate
 import os
 

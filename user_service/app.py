@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from models import db, User
+from models.models import db, User
 from flask_migrate import Migrate
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -24,7 +24,7 @@ def create_admin_user():
                 last_name='User',
                 email='admin@gmail.com',
                 age=30,
-                password=generate_password_hash('1234'),  # ตั้งรหัสผ่านเริ่มต้น
+                password=generate_password_hash('1234'),
                 role='admin',
                 birthday=None,
                 gender=None
@@ -32,12 +32,6 @@ def create_admin_user():
             db.session.add(admin)
             db.session.commit()
             print("Admin user created: admin@gmail.com / 1234")
-
-
-@app.before_first_request
-def initialize():
-    create_admin_user()
-
 
 def admin_required(fn):
     @jwt_required()
@@ -190,4 +184,6 @@ def profile():
 
 
 if __name__ == '__main__':
+    with app.app_context():
+        create_admin_user()
     app.run(host='0.0.0.0', port=5001)

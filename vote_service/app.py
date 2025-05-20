@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from models import db, Vote
+from models.models import db, Vote
 from flask_migrate import Migrate
 import os
 from datetime import datetime
