@@ -1,0 +1,95 @@
+version: "3.8"
+
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock  # ให้ Jenkins สั่ง Docker ได้
+    restart: unless-stopped
+
+  user_db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: user_db
+    ports:
+      - "54321:5432"
+    volumes:
+      - user_db_data:/var/lib/postgresql/data
+
+  user_service:
+    build: ./user_service
+    depends_on:
+      - user_db
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@user_db:5432/user_db
+      - JWT_SECRET_KEY=super-secret-key
+    ports:
+      - "5001:5001"
+
+  election_db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: election_db
+    volumes:
+      - election_db_data:/var/lib/postgresql/data
+
+  election_service:
+    build: ./election_service
+    depends_on:
+      - election_db
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@election_db:5432/election_db
+    ports:
+      - "5002:5002"
+
+  candidate_db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: candidate_db
+    volumes:
+      - candidate_db_data:/var/lib/postgresql/data
+
+  candidate_service:
+    build: ./candidate_service
+    depends_on:
+      - candidate_db
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@candidate_db:5432/candidate_db
+    ports:
+      - "5003:5003"
+
+  vote_db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: vote_db
+    volumes:
+      - vote_db_data:/var/lib/postgresql/data
+
+  vote_service:
+    build: ./vote_service
+    depends_on:
+      - vote_db
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@vote_db:5432/vote_db
+    ports:
+      - "5004:5004"
+
+volumes:
+  user_db_data:
+  election_db_data:
+  candidate_db_data:
+  vote_db_data:
+  jenkins_home:
