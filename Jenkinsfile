@@ -19,12 +19,18 @@ pipeline {
             }
         }
 
-        stage('Stop & Remove Old Services') {
+        stage('Force Remove Conflicting Containers') {
             steps {
-                sh """
-                    docker-compose -f ${COMPOSE_FILE} stop user_service election_service vote_service candidate_service || true
-                    docker-compose -f ${COMPOSE_FILE} rm -f user_service election_service vote_service candidate_service || true
-                """
+                sh '''
+                    echo "Cleaning containers using ports 5001–5004 (user/election/vote/candidate services)"
+                    for port in 5001 5002 5003 5004; do
+                      CONTAINER_ID=$(docker ps -aq --filter "publish=$port")
+                      if [ ! -z "$CONTAINER_ID" ]; then
+                        echo "Stopping and removing container on port $port -> $CONTAINER_ID"
+                        docker rm -f "$CONTAINER_ID"
+                      fi
+                    done
+                '''
             }
         }
 
