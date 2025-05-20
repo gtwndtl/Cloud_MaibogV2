@@ -19,17 +19,18 @@ pipeline {
             }
         }
 
-        stage('Stop Existing Services') {
+        stage('Stop & Remove Old Containers') {
             steps {
-                // หยุดเฉพาะ services ที่เปิด port แล้วมีโอกาสชน
-                sh "docker-compose -f ${COMPOSE_FILE} stop user_service election_service vote_service candidate_service || true"
+                sh """
+                    docker-compose -f ${COMPOSE_FILE} stop user_service election_service vote_service candidate_service || true
+                    docker-compose -f ${COMPOSE_FILE} rm -f user_service election_service vote_service candidate_service || true
+                """
             }
         }
 
         stage('Restart Services') {
             steps {
-                // บังคับ recreate container service แบบไม่แตะ db
-                sh "docker-compose -f ${COMPOSE_FILE} up -d --force-recreate user_service election_service vote_service candidate_service"
+                sh "docker-compose -f ${COMPOSE_FILE} up -d user_service election_service vote_service candidate_service"
             }
         }
     }
