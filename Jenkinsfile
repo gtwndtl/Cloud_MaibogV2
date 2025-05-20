@@ -10,8 +10,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // ดึงโค้ดจาก GitHub/GitLab
-                git url: "${GIT_REPO}", branch: 'main'
+                git branch: 'main', url: 'https://github.com/gtwndtl/Cloud_MaibogV2.git'
             }
         }
 
