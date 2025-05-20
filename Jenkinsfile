@@ -3,6 +3,11 @@ pipeline {
 
     environment {
         GIT_REPO = 'https://github.com/gtwndtl/Cloud_MaibogV2.git'
+        COMPOSE_FILE = 'docker-compose.yml'
+    }
+
+    options {
+        timestamps()
     }
 
     stages {
@@ -12,11 +17,16 @@ pipeline {
             }
         }
 
+        stage('Build') {
+            steps {
+                sh "docker-compose -f ${COMPOSE_FILE} build"
+            }
+        }
+
         stage('Deploy') {
             steps {
-                echo 'Deploying services using docker-compose'
-                sh 'docker-compose down'
-                sh 'docker-compose up -d'
+                sh "docker-compose -f ${COMPOSE_FILE} down"
+                sh "docker-compose -f ${COMPOSE_FILE} up -d"
             }
         }
     }
@@ -24,9 +34,6 @@ pipeline {
     post {
         always {
             echo 'Pipeline finished!'
-        }
-        failure {
-            echo 'Pipeline failed!'
         }
     }
 }
