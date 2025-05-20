@@ -1,18 +1,6 @@
 version: "3.8"
 
 services:
-  jenkins-server:
-      build: ./jenkins
-      container_name: jenkins-server
-      ports:
-        - "8080:8080"
-        - "50000:50000"
-      volumes:
-        - jenkins_home:/var/jenkins_home
-        - /var/run/docker.sock:/var/run/docker.sock  # ให้ Jenkins ใช้ Docker ของ host ได้
-        - .:/workspace  # ให้ Jenkins access โค้ดในโปรเจกต์ (เช่น docker-compose.yml)
-      restart: unless-stopped
-
   user_db:
     image: postgres:15
     environment:
@@ -93,4 +81,3 @@ volumes:
   election_db_data:
   candidate_db_data:
   vote_db_data:
-  jenkins_home:
